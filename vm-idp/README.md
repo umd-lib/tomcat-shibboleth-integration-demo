@@ -5,7 +5,7 @@
 - Default IP Address: 192.168.33.10 (Private Network)
 
 Sets up a demonstration IdP for testing Tomcat integration with Shibboleth.
-See https://github.com/dsteelma-umd/tomcat-shibboleth-integration-demo/README.md for setup instructions.
+See https://github.com/dsteelma-umd/tomcat-shibboleth-integration-demo/ for setup instructions.
 
 ## Required Components
 
