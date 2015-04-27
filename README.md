@@ -62,7 +62,7 @@ repo> vagrant ssh
 idp> su - shib
 ```
 
-3) Switch to the /apps/shibboleth-identityprovider-2.3.8, run the install
+3) Switch to /apps/shibboleth-identityprovider-2.3.8, run the install
 script, and enter the values as shown (/apps/shibboleth-idp, 192.168.33.10, shib):
 
 ```
