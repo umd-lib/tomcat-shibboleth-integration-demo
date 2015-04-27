@@ -1,0 +1,30 @@
+#!/bin/csh -f
+
+setenv JAVA_HOME /usr/java/latest
+
+setenv CATALINA_HOME /apps/tomcat
+setenv CATALINA_BASE `pwd`
+setenv JAVA_ENDORSED_DIRS $CATALINA_HOME/endorsed
+#setenv CATALINA_OPTS "-Dlog4j.configuration=file:${CATALINA_BASE}/conf/log4j.xml"
+
+switch ($1)
+case start:
+    echo Starting Tomcat
+    $CATALINA_HOME/bin/daemon.sh --java-home $JAVA_HOME --tomcat-user SED_SERVICE_USER_ACCOUNT_NAME start
+	 breaksw
+
+case stop:
+    echo Stopping Tomcat
+    $CATALINA_HOME/bin/daemon.sh --java-home $JAVA_HOME --tomcat-user SED_SERVICE_USER_ACCOUNT_NAME stop
+	 breaksw
+
+case restart:
+	 ./control stop
+	 sleep 5
+	 ./control start
+	 breaksw
+
+default:
+	 echo invalid option
+	 breaksw
+endsw
