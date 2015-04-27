@@ -393,7 +393,7 @@ e) Go to https://192.168.33.20:443/ - the "Apache 2 Test Page" should be
 displayed (you will likely get one or more warnings about the connection
 being untrusted – this is expected).
 
-f) Go to https://192.168.33.20/simple/ - a "Hello World" page should be displayed
+f) Go to https://192.168.33.20/simple/ - a "Hello World" page should be displayed (you will likely get one or more warnings about the connection being untrusted – this is expected).
 
 ### Shibboleth Setup
 
@@ -546,7 +546,9 @@ sp> ./control start
 sp> sudo /etc/init.d/httpd start
 
 sp> sudo /sbin/service shibd start
+
 idp> ./control start
+
 sp> sudo /sbin/service shibd restart
 ```
 ----
@@ -594,9 +596,10 @@ sequence of steps. If you have already performed Step d (http://192.168.33.20/si
 in the same browser (without restarting the browser), the "Hello World" page
 should be displayed, without requesting a login (there may be warnings about
 untrusted connections). If you've restarted the browser, and go directly to
-https://192.168.33.20/simple/, then you will be asked to login, and then a
-Shibboleth error "Error Message: No peer endpoint available to which to send
-SAML response" will be displayed.
+https://192.168.33.20/simple/, then you will be asked to login (again, possibly
+with warnings about untrusted connections), and then a Shibboleth error
+"Error Message: No peer endpoint available to which to send SAML response"
+will be displayed.
 
 ### Troubleshooting
 
@@ -635,8 +638,7 @@ directly to it via port 8080.
 
 2) Using "https" may result in a Shibboleth error.
 
-3) Shibboleth is not passing any useful attributes to the protected resource
-(such as the login name of the user).
+3) Shibboleth is not passing any useful attributes to the protected resource.
 
 #### Blocking port 8080 access to the protected resource
 
@@ -726,9 +728,18 @@ idp> ./control stop; sudo /etc/init.d/httpd stop
 sp> cd /apps/tomcat
 sp> ./control stop; sudo /etc/init.d/httpd stop; sudo /sbin/service shibd stop
 
-idp> ./control start; sudo /etc/init.d/httpd start
+idp> cd /apps/tomcat/
+idp> sudo /etc/init.d/httpd start
 
-sp> ./control start; sudo /etc/init.d/httpd start; sudo /sbin/service shibd start
+sp> cd /apps/tomcat/
+sp> ./control start
+sp> sudo /etc/init.d/httpd start
+
+sp> sudo /sbin/service shibd start
+
+idp> ./control start
+
+sp> sudo /sbin/service shibd restart
 ```
 
 #### Verification steps:
@@ -778,7 +789,7 @@ making the following changes:
 a) Uncomment the "&lt;resolver:AttributeDefinition ... id="eduPersonAffiliation" ...">"
 and "&lt;resolver:AttributeDefinition ... id="eduPersonEntitlement ...">" stanzas
 in the "Schema: eduPerson attributes" section (move the "<!–" to after the
-"eduPersonEntitlement" stanza. In each stanza, replace the
+"eduPersonEntitlement" stanza). In each stanza, replace the
 "&lt;resolver:Dependency ref="myLDAP" />" entry with "&lt;resolver:Dependency ref="staticAttributes" />.
 When completed, the stanzas should look like:
 
@@ -902,7 +913,8 @@ This will print out XML containing the attributes sent to the SP.
 ```
 
 2) Go to the protected resource https://192.168.33.20/simple. After logging in,
-go to https://192.168.33.20/Shibboleth.sso/Session. Information about the
+(and dealing with any warnings about untrusted connections) go to
+https://192.168.33.20/Shibboleth.sso/Session. Information about the
 session, including the attributes, will be displayed.
 
 ----
