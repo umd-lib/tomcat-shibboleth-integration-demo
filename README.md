@@ -11,6 +11,7 @@ Shibboleth Identity Provider (IdP) working with a Shibboleth Service Provider
 <strong>Warning:</strong><br>This document is not intended to show best practices
 for setting up a production Shibboleth instance.
 </p>
+----
 
 The demo-shibboleth-idp-sp-tomcat GitHub repository contains two Vagrant
 configurations – one for a Shibboleth IdP, the other for a Shibboleth SP.
@@ -548,7 +549,7 @@ sp> sudo /sbin/service shibd start
 idp> ./control start
 sp> sudo /sbin/service shibd restart
 ```
-
+----
 <p style="background-color: #fffdf6">
 <strong>Note:</strong> 
 <br>
@@ -570,6 +571,7 @@ MetadataGenerator to construct the metadata file to send to the IdP. According
 to the Shibboleth documentation, the MetadataGenerator should not be used In a
 production environment.
 </p>
+----
 
 #### Verification steps:
 
