@@ -16,7 +16,7 @@ for setting up a production Shibboleth instance.
 The demo-shibboleth-idp-sp-tomcat GitHub repository contains two Vagrant
 configurations – one for a Shibboleth IdP, the other for a Shibboleth SP.
 
-Both Vagrant configurations require the jdk-7u79-linux-x64.rpm file to be
+Both Vagrant configurations require the jdk-7u79-linux-x79.rpm file to be
 downloaded from Oracle (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 and placed in vm-setup/oracle_jdk/required/ directory.
 
