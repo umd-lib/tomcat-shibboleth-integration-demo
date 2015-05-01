@@ -815,7 +815,7 @@ and "eduPersonEntitlement" attributes.
 2) Edit the /apps/shibboleth-idp/conf/attribute-filter.xml file:
 
 ```
-> sudo vi /apps/shibboleth-idp/conf/attribute-filter.xml
+idp> sudo vi /apps/shibboleth-idp/conf/attribute-filter.xml
 ```
 
 uncommenting the "&lt;afp:AttributeFilterPolicy>" stanza (the portal example)
