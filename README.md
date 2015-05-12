@@ -642,13 +642,13 @@ directly to it via port 8080.
 
 #### Blocking port 8080 access to the protected resource
 
-Following the advice in [O'Reilly's Tomcat: The Definitive Guide, 2nd Edition](http://proquest.safaribooksonline.com/book/programming/java/9780596101060),
+Following the advice in Chapter 6 of [O'Reilly's Tomcat: The Definitive Guide, 2nd Edition](http://proquest.safaribooksonline.com/book/programming/java/9780596101060),
 block access to port 8080 at the firewall by running the following iptables
 commands on the SP machine:
 
 ```
 sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8080 -d 192.168.33.20 -j DROP
-sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8080 -d 192.168.33.20 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8009 -d 192.168.33.20 -j DROP
 sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8443 -d 192.168.33.20 -j DROP
 sp> sudo /sbin/service iptables save
 ```
