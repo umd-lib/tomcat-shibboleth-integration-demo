@@ -697,7 +697,7 @@ The keystore password is "changeit"
 Trust this certificate? [no]:  yes
 ```
 
-3) On the SP edit the /etc/shibboleth/shibboleth2.xml:
+3) On the SP edit /etc/shibboleth/shibboleth2.xml:
 
 ```
 sp> sudo vi /etc/shibboleth/shibboleth2.xml
