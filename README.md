@@ -248,7 +248,7 @@ repo> cp target/simple.war ../../vm-sp/
 
 ## SP Setup
 
-Apache HTTP, Tomcat, and Shibboleth are downloaded as part of the Vargrant
+Apache HTTP, Tomcat, and Shibboleth are downloaded as part of the Vagrant
 setup. The Apache server and Shibboleth were installed via the "yum" package
 manager. See https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPLinuxRPMInstall
 for information about installing Shibboleth via yum.
