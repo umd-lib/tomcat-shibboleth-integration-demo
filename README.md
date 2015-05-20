@@ -612,7 +612,7 @@ There are several ways to check:
  * Point a web browser at the idp web application: https://192.168.33.10/idp/shibboleth.
    If you get a resource not found error, the idp web application has not started.
 
- * In the /apps/tomcat/logs/catalina-daemon.log, look for errors like:
+ * In the /apps/tomcat/logs/catalina-daemon.out, look for errors like:
  ```
 INFO: Deploying web application archive idp.war
 Apr 23, 2015 5:13:01 AM org.apache.catalina.core.StandardContext start
