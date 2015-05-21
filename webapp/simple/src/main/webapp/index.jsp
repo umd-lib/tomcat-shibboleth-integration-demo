@@ -4,6 +4,8 @@
 <%@ page import = "java.util.*" %>
 <b>Parameters:</b><br>
 <%
+  out.println("<p>Remote User: " + request.getRemoteUser()+"</p>"); 
+
   Enumeration paramsList = request.getParameterNames();
   out.println("<ul>");
   while( paramsList.hasMoreElements() )
