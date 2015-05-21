@@ -145,6 +145,7 @@ and add the following lines to the bottom of the file:
   require valid-user
 </Location>
 ```
+See https://wiki.shibboleth.net/confluence/display/SHIB2/IdPAuthRemoteUser for more information.
 
 8) Create the /usr/local/idp/credentials/, and then use htpasswd to add some
 users to it. These will be the users that are authorized to access the
