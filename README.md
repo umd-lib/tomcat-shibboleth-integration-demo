@@ -145,6 +145,7 @@ and add the following lines to the bottom of the file:
   require valid-user
 </Location>
 ```
+See https://wiki.shibboleth.net/confluence/display/SHIB2/IdPAuthRemoteUser for more information.
 
 8) Create the /usr/local/idp/credentials/, and then use htpasswd to add some
 users to it. These will be the users that are authorized to access the
@@ -876,9 +877,12 @@ display the following two parameters, along with some others:
 
 #### Attributes on the IdP
 
+1) The aacli.sh" script
+
 The Shibboleth IdP application has a "aacli.sh" script to return what attributes
 will be sent to a particular SP for a particular user. 
-ee https://wiki.shibboleth.net/confluence/display/SHIB2/AACLI for more information.
+
+See https://wiki.shibboleth.net/confluence/display/SHIB2/AACLI for more information.
 
 For some reason, the Shibboleth IdP doesn't include the servlet-api.jar, so the
 "aacli.sh" script doesn't work out of the box (it gives ClassNotFoundExceptions
@@ -886,17 +890,35 @@ when you try to run it). To fix this, simply copy the servlet-api.jar file into
 the "lib" directory, i.e.:
 
 ```
-> cp /apps/tomcat/lib/servlet-api.jar /apps/shibboleth-idp/lib/
+idp> cp /apps/tomcat/lib/servlet-api.jar /apps/shibboleth-idp/lib/
 ```
 
 To see what attributes will be sent to the SP for the "myself" user, run the
 following commands:
 
 ```
-> /apps/shibboleth-idp/bin/aacli.sh --configDir /apps/shibboleth-idp/conf --principal myself --requester https://192.168.33.20/shibboleth
+idp> /apps/shibboleth-idp/bin/aacli.sh --configDir /apps/shibboleth-idp/conf --principal myself --requester https://192.168.33.20/shibboleth
 ```
 
 This will print out XML containing the attributes sent to the SP.
+
+2) IdP Logging Level
+
+Increasing the logging level on the IdP can be very helpful for diagnosing problems with attributes. To do this, edit the /apps/tomcat/shibboleth-idp/conf/logging.xml file
+
+```
+idp> vi /apps/shibboleth-idp/conf/logging.xml
+```
+
+and change the following line from "INFO" to something more verbose such as "DEBUG" or "TRACE":
+
+```
+<logger name="edu.internet2.middleware.shibboleth" level="INFO"/>
+```
+
+Tomcat will need to be restarted for the change to take effect.
+
+The log file is /apps/shibboleth-idp/logs/idp-process.log
 
 #### Attributes on the SP
 
