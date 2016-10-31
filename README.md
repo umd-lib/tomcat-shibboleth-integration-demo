@@ -17,8 +17,8 @@ The demo-shibboleth-idp-sp-tomcat GitHub repository contains two Vagrant
 configurations – one for a Shibboleth IdP, the other for a Shibboleth SP.
 
 ### Prerequisites
-Both Vagrant configurations require the Java JDK. Download the jdk-7u79-linux-x79.rpm file from Oracle (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
-and placed in vm-setup/oracle_jdk/required/ directory.
+Both Vagrant configurations require the Java JDK. Download the jdk-7u79-linux-x64.rpm file from Oracle (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
+and placed in vagrant_shared/oracle_jdk/required/ directory.
 
 ### Shibboleth IdP Configuration
 
@@ -535,7 +535,7 @@ to
 
 ### Restart SP and IdP Services
 
-12) Restart the services on the IdP and SP machines. The order is important,
+13) Restart the services on the IdP and SP machines. The order is important,
 and wait for each command to finish before running the next one:
 
 ```
@@ -877,7 +877,7 @@ display the following two parameters, along with some others:
 
 #### Attributes on the IdP
 
-1) The aacli.sh" script
+1) The "aacli.sh" script
 
 The Shibboleth IdP application has a "aacli.sh" script to return what attributes
 will be sent to a particular SP for a particular user. 
