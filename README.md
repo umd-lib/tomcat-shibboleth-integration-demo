@@ -22,6 +22,7 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
 
 ### Shibboleth IdP Configuration
 
+ * CentOS 5.10
  * IP Address: 192.168.33.10
  * Apache v2.2.3
  * Tomcat v6.0.39
@@ -30,11 +31,12 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
  
 ### Shibboleth SP Configuration
 
+ * CentOS 7.2
  * IP Address: 192.168.33.20
- * Apache v2.2.3
+ * Apache v2.4.6
  * Tomcat v7.0.42
  * Java JDK v1.7.0_79
- * Shibboleth v2.5.4
+ * Shibboleth v2.6.0
  
 ## IdP Setup
 
@@ -339,7 +341,7 @@ SSLCertificateKeyFile /etc/pki/tls/private/ca.key
 5) Restart Apache
 
 ```
-sp> sudo /etc/init.d/httpd restart
+sp> sudo apachectl restart
 ```
 
 #### Verification steps:
@@ -364,7 +366,7 @@ being untrusted – this is expected).
 sp> sudo vi /etc/httpd/conf/httpd.conf
 ```
 
-adding the following line (after the "LoadModule" section):
+adding the following line (at the bottom of the file):
 
 ```
 ProxyPass /simple ajp://localhost:8009/simple
@@ -377,7 +379,7 @@ and also "Apache Integration with Tomcat" section in Chapter 5 of
 7) Restart Apache
 
 ```
-sp> sudo /etc/init.d/httpd restart
+sp> sudo apachectl restart
 ```
 
 #### Verification steps:
@@ -420,13 +422,13 @@ adding the following lines to the bottom of the file:
 9) Restart Apache
 
 ```
-sp> sudo /etc/init.d/httpd restart
+sp> sudo apachectl restart
 ```
 
 10) Start the "shibd" Shibboleth daemon:
 
 ```
-sp> sudo /sbin/service shibd start
+sp> sudo systemctl start shibd.service
 ```
 
 #### Verification steps:
@@ -454,8 +456,8 @@ page, indicating "No MetadataProvider available."
 ```
 sp> cd /apps/tomcat/
 sp> ./control stop
-sp> sudo /etc/init.d/httpd stop
-sp> sudo /sbin/service shibd stop
+sp> sudo apachectl stop
+sp> sudo systemctl stop shibd.service
 ```
 
 12) Edit /etc/shibboleth/shibboleth2.xml
@@ -544,13 +546,13 @@ idp> sudo /etc/init.d/httpd start
 
 sp> cd /apps/tomcat/
 sp> ./control start
-sp> sudo /etc/init.d/httpd start
+sp> sudo apachectl start
 
-sp> sudo /sbin/service shibd start
+sp> sudo systemctl start shibd.service
 
 idp> ./control start
 
-sp> sudo /sbin/service shibd restart
+sp> sudo systemctl restart shibd.service
 ```
 ----
 <p style="background-color: #fffdf6">
@@ -727,20 +729,20 @@ idp> cd /apps/tomcat
 idp> ./control stop; sudo /etc/init.d/httpd stop
 
 sp> cd /apps/tomcat
-sp> ./control stop; sudo /etc/init.d/httpd stop; sudo /sbin/service shibd stop
+sp> ./control stop; sudo apachectl stop; sudo systemctl stop shibd.service
 
 idp> cd /apps/tomcat/
 idp> sudo /etc/init.d/httpd start
 
 sp> cd /apps/tomcat/
 sp> ./control start
-sp> sudo /etc/init.d/httpd start
+sp> sudo apachectl start
 
-sp> sudo /sbin/service shibd start
+sp> sudo systemctl start shibd.service
 
 idp> ./control start
 
-sp> sudo /sbin/service shibd restart
+sp> sudo systemctl restart shibd.service
 ```
 
 #### Verification steps:

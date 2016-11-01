@@ -8,6 +8,10 @@
 # Configure the environment
 source /vagrant/vagrant_env_config.sh
 
+# Install csh
+echo --- Installing csh ---
+yum -y install csh
+
 # Install expect
 echo --- Installing expect ---
 yum -y install expect
@@ -31,16 +35,19 @@ yum -y install mod_ssl openssl
 
 # Start Apache
 echo --- Starting Apache ---
-/etc/init.d/httpd start
+apachectl start
 
 # Install Git
 echo --- Installing Git ---
-sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
-sudo yum -y install git
+yum -y install git
+
+# Install ipstables-services
+echo --- Installing iptables-services ---
+yum -y install iptables-services
 
 # Install Shibboleth
 echo --- Installing Shibboleth ---
-sudo wget --quiet http://download.opensuse.org/repositories/security://shibboleth/CentOS_5/security:shibboleth.repo -O /etc/yum.repos.d/shibboleth.repo
+sudo wget --quiet http://download.opensuse.org/repositories/security://shibboleth/CentOS_7/security:shibboleth.repo -O /etc/yum.repos.d/shibboleth.repo
 sudo yum -y install shibboleth.x86_64
 
 # Run the rest of the script as the service user

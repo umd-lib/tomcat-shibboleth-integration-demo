@@ -11,8 +11,9 @@ private_ip = ENV['SHIB_TEST_VM_IP'] || "192.168.33.20"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   # This box is provided by Puppet Labs; see http://puppet-vagrant-boxes.puppetlabs.com/ 
-  config.vm.box = "centos510-x64"
-  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-510-x64-virtualbox-puppet.box"
+  config.vm.box = "centos72-x64"
+  config.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.7.2/vagrant-centos-7.2.box"
+
 
   # Increase the amount of RAM
   config.vm.provider "virtualbox" do |v|
