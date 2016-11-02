@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
       v.memory = 2048
     end
 
-    idp.vm.network "private_network", ip: "192.168.33.100"
+    idp.vm.network "private_network", ip: "192.168.33.110"
     
     # Share an additional folder to the guest VM. This directory contains
     # scripts that are useful for multiple Vagrant configurations.
@@ -42,10 +42,33 @@ Vagrant.configure(2) do |config|
     
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
-    sp_dev.vm.network "private_network", ip: "192.168.33.110"
+    sp_dev.vm.network "private_network", ip: "192.168.33.120"
       
     # Install and configure necessary components
     sp_dev.vm.provision :shell, path: "vagrant_shared/oracle_jdk/install_jdk.sh"
     sp_dev.vm.provision "shell", path: "vm-sp/vm-setup.sh"
+  end
+  
+  # sp-production
+  config.vm.define "sp-production" do |sp_production|
+    sp_production.vm.box = "centos510-x64"
+    sp_production.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-510-x64-virtualbox-puppet.box"
+  
+    # Increase the amount of RAM
+    sp_production.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+    end
+    
+    # Share an additional folder to the guest VM. This directory contains
+    # scripts that are useful for multiple Vagrant configurations.
+    sp_production.vm.synced_folder "vagrant_shared", "/vagrant_shared"
+    
+    # Create a private network, which allows host-only access to the machine
+    # using a specific IP.
+    sp_production.vm.network "private_network", ip: "192.168.33.130"
+      
+    # Install and configure necessary components
+    sp_production.vm.provision :shell, path: "vagrant_shared/oracle_jdk/install_jdk.sh"
+    sp_production.vm.provision "shell", path: "vm-sp/vm-setup.sh"
   end
 end

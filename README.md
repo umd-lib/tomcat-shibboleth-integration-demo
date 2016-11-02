@@ -2,7 +2,7 @@ tomcat-shibboleth-integration-demo
 ==================================
 ## Branch: multiple-sp-endpoints
 
-This branch demonstrates having an IdP configuration that responds to multiple SP servers (for example, a "dev-sp" and a "production-sp".
+This branch demonstrates having an IdP configuration that responds to multiple SP servers (for example, a "sp-dev" and a "sp-production".
 
 ## Vagrant Boxes
 
@@ -17,14 +17,17 @@ This branch contains a multi-machine Vagrantfile, which sets up three machines:
  * A Shibboleth IdP
  * A "dev" Shibboleth SP
  * A "production" Shibboleth SP
+ 
+The metadata for the IdP will list both the "dev" and "production" SP machines as AssertionConsumerService. The "dev" and "production" SP will share the same Shibboleth private key, in order to enable them both to decrypt the response from the IdP.
 
 ### Prerequisites
-Both Vagrant configurations require the Java JDK. Download the jdk-7u79-linux-x64.rpm file from Oracle (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
+
+The Vagrant configurations require the Java JDK. Download the jdk-7u79-linux-x64.rpm file from Oracle (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 and placed in vagrant_shared/oracle_jdk/required/ directory.
 
 ### Shibboleth IdP Configuration
 
- * IP Address: 192.168.33.100
+ * IP Address: 192.168.33.110
  * Apache v2.2.3
  * Tomcat v6.0.39
  * Java JDK v1.7.0_79
@@ -32,7 +35,7 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
  
 ### Shibboleth sp-dev Configuration
 
- * IP Address: 192.168.33.110
+ * IP Address: 192.168.33.120
  * Apache v2.2.3
  * Tomcat v7.0.42
  * Java JDK v1.7.0_79
@@ -40,11 +43,36 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
  
 ### Shibboleth sp-production Configuration
 
- * IP Address: 192.168.33.110
+ * IP Address: 192.168.33.130
  * Apache v2.2.3
  * Tomcat v7.0.42
  * Java JDK v1.7.0_79
- * Shibboleth v2.5.4  
+ * Shibboleth v2.5.4
+
+### Service Account 
+
+Each machine has a "shib" service user that is created during configuration, and is used to run Apache Tomcat.
+
+To access the "shib" service account:
+
+```
+> su - shib
+Password: [Password]
+```
+The default password is "shib".
+
+The default username and password for the service user (default "shib") can be
+changed in [vagrant_env_config.sh](vagrant_env_config.sh).
+ 
+## Build the Vagrant machines
+
+All three machines are defined in the Vagrantfile, so they can all be built with the following command:
+
+```
+repo> vagrant up
+```
+
+This process may take 10-20 minutes.
  
 ## Simple Web Application
 
@@ -61,9 +89,10 @@ Copy the "simple.war" file into the root directory (so it is available to the VM
 
 ```
 repo> cp target/simple.war ../..
+repo> cd ../..
 ```
 
-## SP Setup
+## sp-dev Setup
 
 Apache HTTP, Tomcat, and Shibboleth are downloaded as part of the Vagrant
 setup. The Apache server and Shibboleth were installed via the "yum" package
@@ -72,16 +101,14 @@ for information about installing Shibboleth via yum.
 
 ### Server Configuration
 
-For both the "sp-dev" and "sp-production" machines, do the following:
+For the "sp-dev" machine, do the following:
 
-1) Login to the SP Vagrant box:
-
-
-| sp-dev | sp-production |
-| ------ | ------------- |
-| ```repo> vagrant ssh sp-dev``` | ```repo> vagrant ssh sp-production``` |
+1) Login to the "sp-dev" Vagrant box:
 
 
+```
+repo> vagrant ssh sp-dev
+```
 
 2) Switch to the "shib" user (password: "shib"), and copy the "simple.war" file
 into the Tomcat webapps directory:
@@ -98,8 +125,10 @@ The following steps configure the SP to use SSL to respond to https, as well as
 http URLs. See http://wiki.centos.org/HowTos/Https (alternative resource, with
 slightly different instructions is Recipe 7.2 of Apache Cookbook, 2nd Edition)
 
-1) Create self-signed certificate. Following the instructions in
+3) Create self-signed certificate. Following the instructions in
 http://wiki.centos.org/HowTos/Https:
+
+**For sp-production "Common Name" parameter should be adjusted**
 
 ```
 sp> cd ~
@@ -112,7 +141,7 @@ State or Province Name (full name) [Berkshire]:Maryland
 Locality Name (eg, city) [Newbury]:College Park
 Organization Name (eg, company) [My Company Ltd]:University of Maryland
 Organizational Unit Name (eg, section) []:Library
-Common Name (eg, your name or your server's hostname) []:sample_sp
+Common Name (eg, your name or your server's hostname) []:192.168.33.120
 Email Address []:
 Please enter the following 'extra' attributes
 to be sent with your certificate request
@@ -128,7 +157,7 @@ sp> sudo cp ca.key /etc/pki/tls/private/ca.key
 sp> sudo cp ca.csr /etc/pki/tls/private/ca.csr
 ```
 
-2) Edit /etc/httpd/conf.d/ssl.conf:
+4) Edit /etc/httpd/conf.d/ssl.conf:
 
 ```
 sp> sudo vi /etc/httpd/conf.d/ssl.conf
@@ -144,7 +173,7 @@ SSLCertificateKeyFile /etc/pki/tls/private/ca.key
 
 ### Setup Reverse Proxy and Shibboleth
 
-1) Edit /etc/httpd/conf/httpd.conf
+5) Edit /etc/httpd/conf/httpd.conf
 
 ```
 sp> sudo vi /etc/httpd/conf/httpd.conf
@@ -164,7 +193,7 @@ ProxyPass /simple ajp://localhost:8009/simple
 
 ### Configuring Shibboleth
 
-1) Stop Tomcat, Apache, and Shibboleth:
+6) Stop Tomcat, Apache, and Shibboleth:
 
 ```
 sp> cd /apps/tomcat/
@@ -173,7 +202,7 @@ sp> sudo /etc/init.d/httpd stop
 sp> sudo /sbin/service shibd stop
 ```
 
-2) Edit /etc/shibboleth/shibboleth2.xml
+7) Edit /etc/shibboleth/shibboleth2.xml
 
 ```
 sp> sudo vi /etc/shibboleth/shibboleth2.xml
@@ -207,7 +236,7 @@ b) Edit the "&lt;SSO>" stanza from:
 to
 
 ```
-            <SSO entityID="https://192.168.33.100/idp/shibboleth"
+            <SSO entityID="https://192.168.33.110/idp/shibboleth"
                  discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
               SAML2 SAML1
             </SSO>
@@ -235,12 +264,12 @@ to
 
 ```
         <!-- Example of remotely supplied batch of signed metadata. -->
-        <MetadataProvider type="XML" uri="http://192.168.33.100/idp/profile/Metadata/SAML"
+        <MetadataProvider type="XML" uri="http://192.168.33.110/idp/profile/Metadata/SAML"
               backingFilePath="federation-metadata.xml" reloadInterval="7200">
-<!--
+ <!--
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
             <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
--->
+ -->
             <DiscoveryFilter type="Blacklist" matcher="EntityAttributes" trimTags="true"
               attributeName="http://macedir.org/entity-category"
               attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
@@ -251,8 +280,6 @@ to
 d) Restart Tomcat, Apache and shibd daemon, as it will be needed for configuring the IdP:
 
 ```
-```
-sp> cd /apps/tomcat/
 sp> ./control start
 sp> sudo /etc/init.d/httpd start
 sp> sudo /sbin/service shibd start
@@ -270,19 +297,19 @@ Tomcat on the Shibboleth SP (192.168.33.20).
 
 ### Setup Shibboleth Identity Provider
 
-1) Login to the IdP Vagrant:
+8) Login to the IdP Vagrant:
 
 ```
 repo> vagrant ssh idp
 ```
 
-2) Switch to the "shib" service user (password: "shib"):
+9) Switch to the "shib" service user (password: "shib"):
 
 ```
 idp> su - shib
 ```
 
-3) Switch to /apps/shibboleth-identityprovider-2.3.8, run the install
+10) Switch to /apps/shibboleth-identityprovider-2.3.8, run the install
 script, and enter the values as shown (/apps/shibboleth-idp, 192.168.33.10, shib):
 
 ```
@@ -297,12 +324,12 @@ Be sure you have read the installation/upgrade instructions on the Shibboleth we
 Where should the Shibboleth Identity Provider software be installed? [/opt/shibboleth-idp]
 /apps/shibboleth-idp
 What is the fully qualified hostname of the Shibboleth Identity Provider server? [idp.example.org]
-192.168.33.100
+192.168.33.110
 A keystore is about to be generated for you. Please enter a password that will be used to protect it.
 shib
 ```
 
-4) The "shib" service user has been added to the "sudoers" list, so edit the
+11) The "shib" service user has been added to the "sudoers" list, so edit the
 /etc/httpd/conf/httpd.conf file:
 
 ```
@@ -315,7 +342,7 @@ and add the following line at the bottom of the file:
 ProxyPass /idp/ ajp://localhost:8009/idp/
 ```
 
-5) The Shibboleth IdP web application requires specific XML-related jar files
+12) The Shibboleth IdP web application requires specific XML-related jar files
 to run. Create an "endorsed" directory in /apps/tomcat/, and copy the jars
 from the /apps/shibboleth-identityprovider-2.3.8/endorsed/ into it. The
 /apps/tomcat/control script has been specially written to incorporate these
@@ -326,7 +353,7 @@ ipd> mkdir /apps/tomcat/endorsed
 idp> cp /apps/shibboleth-identityprovider-2.3.8/endorsed/*.jar /apps/tomcat/endorsed
 ```
 
-6) Modify AJP connector in /apps/tomcat/conf/server.xml  to allow Apache to
+13) Modify AJP connector in /apps/tomcat/conf/server.xml  to allow Apache to
 send usernames to the IdP:
 
 ```
@@ -349,7 +376,7 @@ to
         address="127.0.0.1" />
 ```
 
-7) Edit /etc/http/conf/httpd.conf
+14) Edit /etc/http/conf/httpd.conf
 
 ```
 idp> sudo vi /etc/httpd/conf/httpd.conf
@@ -367,7 +394,7 @@ and add the following lines to the bottom of the file:
 ```
 See https://wiki.shibboleth.net/confluence/display/SHIB2/IdPAuthRemoteUser for more information.
 
-8) Create the /usr/local/idp/credentials/, and then use htpasswd to add some
+15) Create the /usr/local/idp/credentials/, and then use htpasswd to add some
 users to it. These will be the users that are authorized to access the
 resources protected by the SP:
 
@@ -381,7 +408,7 @@ idp> htpasswd -c /usr/local/idp/credentials/user.db myself
 
 This creates a user named "myself" with a password of "shib".
 
-9) Stop Apache Tomcat, and copy the idp.war file into the Tomcat webapps
+16) Stop Apache Tomcat, and copy the idp.war file into the Tomcat webapps
 directory:
 
 ```
@@ -391,7 +418,7 @@ idp> ./control stop
 idp> cp /apps/shibboleth-idp/war/idp.war webapps
 ```
 
-10) Edit the /apps/shibboleth-idp/conf/relying-party.xml file to configure the
+17) Edit the /apps/shibboleth-idp/conf/relying-party.xml file to configure the
 IdP for use with the SP:
 
 ```
@@ -406,10 +433,10 @@ This requires adding the following lines, just after the "IdPMD" MetadataProvide
                   metadataFile="/apps/shibboleth-idp/metadata/some-metadata.xml" />
 ```
 
-11) We now need to set up the "some-metadata.xml" file that defines the SP metadata. The metadata is retrieved from the SP (in this case, the "sp-dev" SP by running the following command:
+18) We now need to set up the "some-metadata.xml" file that defines the SP metadata. The metadata is retrieved from the SP (in this case, the "sp-dev" SP by running the following command:
 
 ```
-idp> curl -k https://192.168.33.110/Shibboleth.sso/Metadata > /apps/shibboleth-idp/metadata/some-metadata.xml
+idp> curl -k https://192.168.33.120/Shibboleth.sso/Metadata > /apps/shibboleth-idp/metadata/some-metadata.xml
 ```
 This writes the output of the Curl request into the /apps/shibboleth-idp/metadata/some-metadata.xml, which is referenced in the relying-party.xml configuration.
 
@@ -418,11 +445,11 @@ This writes the output of the Curl request into the /apps/shibboleth-idp/metadat
 
 The above Curl request will generate "AssertionConsumerService" entries in the "some-metadata.xml" file that only respond to "https" requests. (Using "https" results in the AssertionConsumerService entries having "https", using "http" will result in them having "http".)
 
-Using the incorrect http/https when requesting the protected page will result in a "No peer endpoint available to which to send SAML response". So with the above Curl request, https://192.168.33.110/simple will work, but http://192.168.33.110/simple will result in a Shibboleth error.
+Using the incorrect http/https when requesting the protected page will result in a "No peer endpoint available to which to send SAML response". So with the above Curl request, https://192.168.33.120/simple will work, but http://192.168.33.120/simple will result in a Shibboleth error.
 
 If both http and https access is desired, then do the following:
 
-1) On the SP, modify the /etc/shibboleth/shibboleth2.xml file, changing the line:
+a) On the SP, modify the /etc/shibboleth/shibboleth2.xml file, changing the line:
 
 ```
 <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
@@ -433,27 +460,48 @@ to
 ```
 <Handler type="MetadataGenerator" Location="/Metadata" https="true" signing="false"/>
 ```
-2) Run the following Curl command on the IdP (instead of the Curl command above):
+b) Run the following Curl command on the IdP (instead of the Curl command above):
 
 ```
-idp> curl http://192.168.33.110/Shibboleth.sso/Metadata > /apps/shibboleth-idp/metadata/some-metadata.xml
+idp> curl http://192.168.33.120/Shibboleth.sso/Metadata > /apps/shibboleth-idp/metadata/some-metadata.xml
 ```
 
 The /apps/shibboleth-idp/metadata/some-metadata.xml should now contains "AssertionConsumerService" entries for both "http" and "https" variants of the SP URL.
 
 ----
 
-### Restart SP and IdP Services
-
-13) Restart the services on the IdP and SP machines. The order is important,
-and wait for each command to finish before running the next one:
+19) Examine the /apps/shibboleth-idp/metadata/some-metadata.xml:
 
 ```
-idp> cd /apps/tomcat/
-idp> sudo /etc/init.d/httpd start
-idp> ./control start
+idp> view /apps/shibboleth-idp/metadata/some-metadata.xml
+```
 
+it should look like:
+
+```
+ <!--
+ This is example metadata only. Do *NOT* supply it as is without review,
+ and do *NOT* provide it in real time to your partners.
+  -->
+ <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_7798da5827026d8cf5fdcdb337d7ed30a2e29bf2" entityID="https://example-app.lib.umd.edu/shibboleth">
+
+  <md:Extensions xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport">
+ ...
+```
+
+### Restart SP and IdP Services
+
+20) Restart the services on the IdP and SP machines:
+
+```
 sp> cd /apps/tomcat/
+sp> ./control stop
+sp> sudo /etc/init.d/httpd stop
+sp> sudo /sbin/service shibd stop
+
+idp> ./control start
+idp> sudo /etc/init.d/httpd start
+
 sp> ./control start
 sp> sudo /etc/init.d/httpd start
 sp> sudo /sbin/service shibd start
@@ -462,24 +510,24 @@ sp> sudo /sbin/service shibd start
 
 #### Verification steps:
 
-a) Go to http://192.168.33.110/ - the "Apache 2 Test Page" should be displayed.
+a) Go to http://192.168.33.120/ - the "Apache 2 Test Page" should be displayed.
 
-b) Go to http://192.168.33.110:8080/ - the Apache Tomcat page should be displayed
+b) Go to http://192.168.33.120:8080/ - the Apache Tomcat page should be displayed
 
-c) Go to http://192.168.33.110:8080/simple/ - a "Hello World" page should be displayed
+c) Go to http://192.168.33.120:8080/simple/ - a "Hello World" page should be displayed
 
-d) Go to http://192.168.33.110/simple/ - the browser will display warnings about untrusted connections. After adding exceptions to bypass the warnings, you will be asked to login. After
+d) Go to http://192.168.33.120/simple/ - the browser will display warnings about untrusted connections. After adding exceptions to bypass the warnings, you will be asked to login. After
 login, a Shibboleth error "Error Message: No peer endpoint available to which to send SAML response" will be displayed. This is expected (see note above).
 
-e) Go to https://192.168.33.100:443/ - the "Apache 2 Test Page" should be
+e) Go to https://192.168.33.110:443/ - the "Apache 2 Test Page" should be
 displayed (you will likely get one or more warnings about the connection
 being untrusted – this is expected).
 
-f) Go to https://192.168.33.110/simple/ - the browser will display warnings about untrusted connections. After adding exceptions to bypass the warnings, you will be asked to login. Once you've logged in, the "Hello World" page should be displayed.
+f) Go to https://192.168.33.120/simple/ - the browser will display warnings about untrusted connections. After adding exceptions to bypass the warnings, you will be asked to login. Once you've logged in, the "Hello World" page should be displayed.
 
 ### Troubleshooting
 
-1) Verify that the following files look as expected:
+Verify that the following files look as expected:
 
 SP:
 
@@ -496,23 +544,23 @@ The log files for the IdP in /apps/shibboleth-idp/logs/ (particularly the "idp-p
 
 There are several issues with the above setup:
 
-1) It is possible to access the protected resource without logging in by going
+ * It is possible to access the protected resource without logging in by going
 directly to it via port 8080.
 
-2) Shibboleth is not passing any useful attributes to the protected resource.
+ * Shibboleth is not passing any useful attributes to the protected resource.
 
-Note: These steps will not attempt to fix the Shibboleth error that occurs when accessing http://192.168.33.110/simple/, as all services should be using HTTPS.
+Note: These steps will not attempt to fix the Shibboleth error that occurs when accessing http://192.168.33.120/simple/, as all services should be using HTTPS.
 
 #### Blocking port 8080 access to the protected resource
 
-Following the advice in Chapter 6 of [O'Reilly's Tomcat: The Definitive Guide, 2nd Edition](http://proquest.safaribooksonline.com/book/programming/java/9780596101060),
+21) Following the advice in Chapter 6 of [O'Reilly's Tomcat: The Definitive Guide, 2nd Edition](http://proquest.safaribooksonline.com/book/programming/java/9780596101060),
 block access to port 8080 at the firewall by running the following iptables
 commands on the SP machine:
 
 ```
-sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8080 -d 192.168.33.110 -j DROP
-sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8009 -d 192.168.33.110 -j DROP
-sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8443 -d 192.168.33.110 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8080 -d 192.168.33.120 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8009 -d 192.168.33.120 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8443 -d 192.168.33.120 -j DROP
 sp> sudo /sbin/service iptables save
 ```
 
@@ -521,15 +569,15 @@ sp> sudo /sbin/service iptables save
 a) Restart the browser being used for testing (this clears any previous login
 sessions).
 
-b) Go to http://192.168.33.110/ - the "Apache 2 Test Page" should be displayed.
+b) Go to http://192.168.33.120/ - the "Apache 2 Test Page" should be displayed.
 
-c) Go to http://192.168.33.110:8080/ - the browser should wait, and then timeout.
+c) Go to http://192.168.33.120:8080/ - the browser should wait, and then timeout.
 
-d) Go to https://192.168.33.110/simple/ - Should be prompted for a login. After
+d) Go to https://192.168.33.120/simple/ - Should be prompted for a login. After
 login, the "Hello World" page should be displayed (you will likely get one or
 more warnings about the connection being untrusted – this is expected).
 
-e) Go to http://192.168.33.110:8080/simple/ - the browser should wait, and then
+e) Go to http://192.168.33.120:8080/simple/ - the browser should wait, and then
 timeout.
 
 #### Passing Attributes
@@ -553,7 +601,7 @@ we will be returning two static attributes:
  * eduPersonAffiliation: Contains the value "member"
  * eduPersonEntitlement: Contains the values "urn:example.org:entitlement:entitlement1" and "urn:mace:dir:entitlement:common-lib-terms"
 
-1) Edit the /apps/shibboleth-idp/conf/attribute-resolver.xml file:
+22) Edit the /apps/shibboleth-idp/conf/attribute-resolver.xml file:
 
 ```
 idp> sudo vi /apps/shibboleth-idp/conf/attribute-resolver.xml
@@ -586,7 +634,7 @@ b) In the "Data Connectors" section of the file, uncomment the "Example Static C
 Notice that it is already configured with values for the "eduPersonAffiliation"
 and "eduPersonEntitlement" attributes.
 
-2) Edit the /apps/shibboleth-idp/conf/attribute-filter.xml file:
+23) Edit the /apps/shibboleth-idp/conf/attribute-filter.xml file:
 
 ```
 idp> sudo vi /apps/shibboleth-idp/conf/attribute-filter.xml
@@ -597,7 +645,7 @@ at the end of the file and changing it to:
 
 ```
     <afp:AttributeFilterPolicy>
-        <afp:PolicyRequirementRule xsi:type="basic:AttributeRequesterString" value="https://192.168.33.20/shibboleth" />
+        <afp:PolicyRequirementRule xsi:type="basic:AttributeRequesterString" value="https://example-app.lib.umd.edu/shibboleth" />
         <afp:AttributeRule attributeID="eduPersonAffiliation">
             <afp:PermitValueRule xsi:type="basic:ANY" />
         </afp:AttributeRule>
@@ -609,17 +657,17 @@ at the end of the file and changing it to:
 
 ##### SP Setup
 
-1) Edit the /etc/shibboleth/shibboleth2.xml file:
+24) Edit the /etc/shibboleth/shibboleth2.xml file:
 
 ```
 sp> sudo vi /etc/shibboleth/shibboleth2.xml
 ```
 
-adding an "attributePrefix="AJP_"" attribute to the &lt;ApplicationDefaults>
+adding an "attributePrefix="AJP_" attribute to the &lt;ApplicationDefaults>
 stanza, i.e.:
 
 ```
-    <ApplicationDefaults entityID="https://192.168.33.20/shibboleth"
+    <ApplicationDefaults entityID="https://example-app.lib.umd.edu/shibboleth"
                          REMOTE_USER="eppn persistent-id targeted-id"
                          attributePrefix="AJP_">
 ```
@@ -631,14 +679,32 @@ this example. For other attributes, the /etc/shibboleth/attribute-map.xml might
 need to be edited to map particular attributes to particular names for use by
 the Java servlet.
 
-2) Restart the Tomcat and Apache services on the IdP machine, and the Tomcat,
-Apache, and shibd daemon on the SP machine.
+25) Restart the Tomcat and Apache services on the IdP machine, and the Tomcat,
+Apache, and shibd daemon on the SP machine:
+
+```
+sp> cd /apps/tomcat/
+sp> ./control stop
+sp> sudo /etc/init.d/httpd stop
+sp> sudo /sbin/service shibd stop
+
+idp> ./control stop
+idp> sudo /etc/init.d/httpd stop
+
+idp> ./control start
+idp> sudo /etc/init.d/httpd start
+
+sp> ./control start
+sp> sudo /etc/init.d/httpd start
+sp> sudo /sbin/service shibd start
+
+```
 
 #### Verification steps:
 
 a) Restart the browser being used for testing (this clears any previous login sessions).
 
-b) Go to https://192.168.33.110/simple/ - After logging in the page should
+b) Go to https://192.168.33.120/simple/ - After logging in the page should
 display the following two parameters, along with some others:
 
  * entitlement = urn:mace:dir:entitlement:common-lib-terms;urn:example.org:entitlement:entitlement1
@@ -650,7 +716,7 @@ display the following two parameters, along with some others:
 
 #### Attributes on the IdP
 
-1) The "aacli.sh" script
+a) The "aacli.sh" script
 
 The Shibboleth IdP application has a "aacli.sh" script to return what attributes
 will be sent to a particular SP for a particular user. 
@@ -670,12 +736,12 @@ To see what attributes will be sent to the SP for the "myself" user, run the
 following commands:
 
 ```
-idp> /apps/shibboleth-idp/bin/aacli.sh --configDir /apps/shibboleth-idp/conf --principal myself --requester https://192.168.33.20/shibboleth
+idp> /apps/shibboleth-idp/bin/aacli.sh --configDir /apps/shibboleth-idp/conf --principal myself --requester https://example-app.lib.umd.edu/shibboleth
 ```
 
 This will print out XML containing the attributes sent to the SP.
 
-2) IdP Logging Level
+b) IdP Logging Level
 
 Increasing the logging level on the IdP can be very helpful for diagnosing problems with attributes. To do this, edit the /apps/tomcat/shibboleth-idp/conf/logging.xml file
 
@@ -695,7 +761,7 @@ The log file is /apps/shibboleth-idp/logs/idp-process.log
 
 #### Attributes on the SP
 
-1) On the SP, edit the /etc/shibboleth/shibboleth2.xml, changing the
+c) On the SP, edit the /etc/shibboleth/shibboleth2.xml, changing the
 "showAttributeValues" flag in the Sessions handler to "true", i.e.:
 
 ```
@@ -707,10 +773,102 @@ The log file is /apps/shibboleth-idp/logs/idp-process.log
 </Sessions>
 ```
 
-2) Go to the protected resource https://192.168.33.20/simple. After logging in,
+d) Go to the protected resource https://192.168.33.20/simple. After logging in,
 (and dealing with any warnings about untrusted connections) go to
 https://192.168.33.20/Shibboleth.sso/Session. Information about the
 session, including the attributes, will be displayed.
+
+### sp-production Prerequisite
+
+Before configuring the "sp-production" machine, we need to copy the private key used by Shibboleth to encrypt communications between the IdP and SP to the /vagrant directory, so that it is available for copying into the "sp-production" configuration.
+
+This is necessary, because the "public" key in the /apps/shibboleth-idp/metadata/some-metadata.xml file is used to encrypt communications between the IdP and SP, so both SPs need to have access to the private key in order to decrypt the response from the IdP.
+
+26) Copy the Shibboleth private key files to /vagrant:
+
+```
+sp> sudo cp /etc/shibboleth/sp-key.pem /vagrant
+sp> sudo cp /etc/shibboleth/sp-cert.pem /vagrant
+```
+
+## sp-production Setup
+
+For the "sp-production" machine, do the following:
+
+27) Login to the "sp-production" Vagrant box:
+
+
+```
+repo> vagrant ssh sp-production
+```
+
+28) For the"sp-production" setup perform steps 2-7. In Step 2, when creating a self-signed certificate, the hostname is "192.168.33.130" instead of "192.168.120"
+
+29) Perform step 24 (editing the "/etc/shibboleth/shibboleth2.xml" file)
+
+30) In the IdP, edit the "/apps/shibboleth-idp/metadata/some-metadata.xml" file:
+
+```
+idp> vi /apps/shibboleth-idp/metadata/some-metadata.xml
+```
+
+and add the following lines, after the other "AssertionConsumerServices" entries:
+
+```
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://192.168.33.130/Shibboleth.sso/SAML2/POST" index="7"/>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://192.168.33.130/Shibboleth.sso/SAML2/POST-SimpleSign" index="8"/>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://192.168.33.130/Shibboleth.sso/SAML2/Artifact" index="9"/>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://192.168.33.130/Shibboleth.sso/SAML2/ECP" index="10"/>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:1.0:profiles:browser-post" Location="https://192.168.33.140/Shibboleth.sso/SAML/POST" index="11"/>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:1.0:profiles:artifact-01" Location="https://192.168.33.130/Shibboleth.sso/SAML/Artifact" index="12"/>
+
+```
+
+31) Copy the Shibboleth from sp-dev into sp-production by running the following commands:
+
+```
+sp> sudo cp /vagrant/sp-key.pem /etc/shibboleth/sp-key.pem
+sp> sudo cp /vagrant/sp-cert.pem /etc/shibboleth/sp-cert.pem
+```
+
+32) Block port 8080 access by running the following commands:
+
+```
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8080 -d 192.168.33.130 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8009 -d 192.168.33.130 -j DROP
+sp> sudo /sbin/iptables -A INPUT -p tcp --dport 8443 -d 192.168.33.130 -j DROP
+sp> sudo /sbin/service iptables save
+```
+
+33) Restart the services on the "idp" and "sp-production" machines:
+
+```
+sp> cd /apps/tomcat/
+sp> ./control stop
+sp> sudo /etc/init.d/httpd stop
+sp> sudo /sbin/service shibd stop
+
+idp> cd /apps/tomcat/
+idp> sudo /etc/init.d/httpd stop
+idp> ./control stop
+
+idp> ./control start
+idp> sudo /etc/init.d/httpd start
+
+sp> ./control start
+sp> sudo /etc/init.d/httpd start
+sp> sudo /sbin/service shibd start
+```
+
+#### Verification steps:
+
+a) Restart the browser being used for testing (this clears any previous login sessions).
+
+b) Go to https://192.168.33.130/simple/ - After logging in the page should
+display the following two parameters, along with some others:
+
+ * entitlement = urn:mace:dir:entitlement:common-lib-terms;urn:example.org:entitlement:entitlement1
+ * unscoped-affiliation = member
 
 ----
 
