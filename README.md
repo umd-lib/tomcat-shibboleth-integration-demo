@@ -1,6 +1,14 @@
 tomcat-shibboleth-integration-demo
 ==================================
 
+## Branch: redhat-7-apache-2.4
+
+This branch demonstrates having an SP using CentOS 7.2, and Apache 2.4. It basically mirrors what is in the "master" branch, only updated for CentOS 7.2 and Apache 2.4.
+
+The IdP is still using CentOS 5.10, and Apache v2.2.3
+
+----
+
 This repository contains two Vagrant configurations for demonstrating a
 Shibboleth Identity Provider (IdP) working with a Shibboleth Service Provider
 (SP) to protect a Tomcat web application.
