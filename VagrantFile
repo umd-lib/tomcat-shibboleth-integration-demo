@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  # IdP server
+  config.vm.define "idp" do |idp|
+    idp.vm.box = "centos510-x64"
+    idp.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-510-x64-virtualbox-puppet.box"
+
+    idp.vm.hostname = 'idp'
+    
+    # Increase the amount of RAM
+    idp.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+    end
+
+    idp.vm.network "private_network", ip: "192.168.33.100"
+    
+    # Share an additional folder to the guest VM. This directory contains
+    # scripts that are useful for multiple Vagrant configurations.
+    idp.vm.synced_folder "vagrant_shared", "/vagrant_shared"
+    
+    # Install and configure necessary components
+    idp.vm.provision :shell, path: "vagrant_shared/oracle_jdk/install_jdk.sh"
+    idp.vm.provision "shell", path: "vm-idp/vm-setup.sh"
+  end
+  
+  # sp-dev
+  config.vm.define "sp-dev" do |sp_dev|
+    sp_dev.vm.box = "centos510-x64"
+    sp_dev.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-510-x64-virtualbox-puppet.box"
+  
+    # Increase the amount of RAM
+    sp_dev.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+    end
+    
+    # Share an additional folder to the guest VM. This directory contains
+    # scripts that are useful for multiple Vagrant configurations.
+    sp_dev.vm.synced_folder "vagrant_shared", "/vagrant_shared"
+    
+    # Create a private network, which allows host-only access to the machine
+    # using a specific IP.
+    sp_dev.vm.network "private_network", ip: "192.168.33.110"
+      
+    # Install and configure necessary components
+    sp_dev.vm.provision :shell, path: "vagrant_shared/oracle_jdk/install_jdk.sh"
+    sp_dev.vm.provision "shell", path: "vm-sp/vm-setup.sh"
+  end
+end

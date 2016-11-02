@@ -13,13 +13,13 @@ echo --- Installing expect ---
 yum -y install expect
 
 # Setup the "service" user account
-bash /vagrant/vm-setup/service_user_setup.sh
+bash /vagrant/vm-sp/vm-setup/service_user_setup.sh
 
 # Add service account to sudoers
 echo "$SERVICE_USER_ACCOUNT_NAME           ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
 
 # Setup Apache Tomcat
-bash /vagrant/vm-setup/tomcat/tomcat_setup.sh
+bash /vagrant/vm-sp/vm-setup/tomcat/tomcat_setup.sh
 
 # Install Apache
 echo --- Installing Apache ---
@@ -44,4 +44,4 @@ sudo wget --quiet http://download.opensuse.org/repositories/security://shibbolet
 sudo yum -y install shibboleth.x86_64
 
 # Run the rest of the script as the service user
-sudo -i -u $SERVICE_USER_ACCOUNT_NAME bash /vagrant/vm-setup/run_as_service_user.sh
+sudo -i -u $SERVICE_USER_ACCOUNT_NAME bash /vagrant/vm-sp/vm-setup/run_as_service_user.sh

@@ -7,11 +7,6 @@ source /vagrant/vagrant_env_config.sh
 
 echo -- Apache Tomcat Install ---
 
-# Use default service account of "ole" if a service account is not specified.
-#if [ -n ${SERVICE_USER_ACCOUNT_NAME} ]; then
-#  echo SERVICE_USER_ACCOUNT_NAME not defined.
-#  exit 1
-#fi
 : ${SERVICE_USER_ACCOUNT_NAME:?"SERVICE_USER_ACCOUNT_NAME not defined."; exit 1}
 
 # Retrieve Apache Tomcat
@@ -61,7 +56,7 @@ chmod 544 setenv.sh
 
 # Create control script for running Tomcat
 cd $APACHE_TOMCAT_ALIAS_DIR
-cp /vagrant/vm-setup/tomcat/control $APACHE_TOMCAT_ALIAS_DIR/control
+cp /vagrant/vm-sp/vm-setup/tomcat/control $APACHE_TOMCAT_ALIAS_DIR/control
 # Replace SERVICE_USER_ACCOUNT_NAME in control script with contents of
 # environment variable
 sed -i "s/SED_SERVICE_USER_ACCOUNT_NAME/$SERVICE_USER_ACCOUNT_NAME/g" $APACHE_TOMCAT_ALIAS_DIR/control

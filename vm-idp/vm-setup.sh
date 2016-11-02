@@ -13,7 +13,7 @@ echo --- Installing expect ---
 yum -y install expect
 
 # Setup the "service" user account
-bash /vagrant/vm-setup/service_user_setup.sh
+bash /vagrant/vm-idp/vm-setup/service_user_setup.sh
 
 # Create apps directory
 # Create APPS_DIR, if needed.
@@ -28,7 +28,7 @@ chown --recursive $SERVICE_USER_ACCOUNT_NAME:$SERVICE_USER_ACCOUNT_NAME $APPS_DI
 echo "$SERVICE_USER_ACCOUNT_NAME           ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
 
 # Setup Apache Tomcat
-bash /vagrant/vm-setup/tomcat/tomcat_setup.sh
+bash /vagrant/vm-idp/vm-setup/tomcat/tomcat_setup.sh
 
 # Install Apache
 echo --- Installing Apache ---
@@ -48,4 +48,4 @@ sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarc
 sudo yum -y install git
 
 # Run the rest of the script as the service user
-sudo -i -u $SERVICE_USER_ACCOUNT_NAME bash /vagrant/vm-setup/run_as_service_user.sh
+sudo -i -u $SERVICE_USER_ACCOUNT_NAME bash /vagrant/vm-idp/vm-setup/run_as_service_user.sh
