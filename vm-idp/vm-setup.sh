@@ -8,6 +8,10 @@
 # Configure the environment
 source /vagrant/vagrant_env_config.sh
 
+# Overwrite default Yum repos list with custom one using vault.centos.org
+# CentOS 5.10 has been end-of-lifed, so can no longer use default repos
+cp /vagrant_shared/vm-setup/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
+
 # Install expect
 echo --- Installing expect ---
 yum -y install expect

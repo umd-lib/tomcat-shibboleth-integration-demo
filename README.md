@@ -23,6 +23,7 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
 ### Shibboleth IdP Configuration
 
  * IP Address: 192.168.33.10
+ * CentOS 5.10
  * Apache v2.2.3
  * Tomcat v6.0.39
  * Java JDK v1.7.0_79
@@ -31,10 +32,18 @@ and placed in vagrant_shared/oracle_jdk/required/ directory.
 ### Shibboleth SP Configuration
 
  * IP Address: 192.168.33.20
+ * CentOS 5.10
  * Apache v2.2.3
  * Tomcat v7.0.42
  * Java JDK v1.7.0_79
  * Shibboleth v2.5.4
+
+----
+**Warning:**
+
+CentOS 5.10 was "end-of-lifed" on March 31, 2017. The configuration has been updated so the Yum package manager uses the "vault.centos.org" repository, instead of the default Yum repositories. See the "vm-idp/vm-setep/CentOS-Base.repo" file.
+
+----
  
 ## IdP Setup
 
